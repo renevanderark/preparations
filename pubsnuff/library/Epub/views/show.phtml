@@ -2,8 +2,8 @@
 	<head>
 		<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 		<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
-		<link rel="stylesheet" href="/reset.css" type="text/css" media="screen" />
-		<link rel="stylesheet" href="/style.css" type="text/css" media="screen" />
+		<link rel="stylesheet" href="/pubsnuff/reset.css" type="text/css" media="screen" />
+		<link rel="stylesheet" href="/pubsnuff/style.css" type="text/css" media="screen" />
 		<script type="text/javascript">
 			var toc = {};
 
@@ -33,7 +33,7 @@
 			<?php renderNavPoints($epub, $toc["navPoints"]); ?>
 		</div>
 
-		<iframe id="book" name="main" src="http://<?php echo $_SERVER['SERVER_NAME']; ?>/epub/serve/<?php echo $epub . "/" . $coverPage; ?>">
+		<iframe id="book" name="main" src="http://<?php echo $_SERVER['SERVER_NAME']; ?>/pubsnuff/?/epub/serve/<?php echo $epub . "/" . $coverPage; ?>">
 		</iframe>
 		<a id="prev-page" target="main" class="normal">&lt;</a>
 		<div id="spine"></div>
@@ -57,7 +57,7 @@
 				spineContainer.innerHTML = "";
 				for(var i = 0; i < spine.length; i++) {
 					var node = document.createElement("a");
-					var spineSrc = "http://<?php echo $_SERVER['SERVER_NAME']; ?>/epub/serve/<?php echo $epub . "/" ?>" + spine[i];
+					var spineSrc = "http://<?php echo $_SERVER['SERVER_NAME']; ?>/pubsnuff/?/epub/serve/<?php echo $epub . "/" ?>" + spine[i];
 					node.setAttribute("href", spineSrc);
 					node.setAttribute("target", "main");
 					node.style.left = parseInt(i / (spine.length - 1) * 90) + "%";
@@ -66,14 +66,14 @@
 
 						node.className = "selected";
 						if(i < spine.length - 1) {
-							var nextSrc = "http://<?php echo $_SERVER['SERVER_NAME']; ?>/epub/serve/<?php echo $epub . "/" ?>" + spine[i + 1];
+							var nextSrc = "http://<?php echo $_SERVER['SERVER_NAME']; ?>/pubsnuff/?/epub/serve/<?php echo $epub . "/" ?>" + spine[i + 1];
 							nextPage.setAttribute("href", nextSrc);
 							nextPage.style.display = "block";
 						} else {
 							nextPage.style.display = "none";
 						}
 						if(i > 0) {
-							var prevSrc = "http://<?php echo $_SERVER['SERVER_NAME']; ?>/epub/serve/<?php echo $epub . "/" ?>" + spine[i - 1];
+							var prevSrc = "http://<?php echo $_SERVER['SERVER_NAME']; ?>/pubsnuff/?/epub/serve/<?php echo $epub . "/" ?>" + spine[i - 1];
 							prevPage.setAttribute("href", prevSrc);
 							prevPage.style.display = "block";
 						} else {
@@ -97,7 +97,7 @@
 	<ul>
 		<?php foreach($navPoints as $navPoint): ?>
 			<li>
-				<a onclick="if(window.innerWidth <= 600) { toc.toggle(); }" target="main" href="http://<?php echo $_SERVER['SERVER_NAME']; ?>/epub/serve/<?php echo $epub . "/" . $navPoint["src"]; ?>">
+				<a onclick="if(window.innerWidth <= 600) { toc.toggle(); }" target="main" href="http://<?php echo $_SERVER['SERVER_NAME']; ?>/pubsnuff/?/epub/serve/<?php echo $epub . "/" . $navPoint["src"]; ?>">
 					<?php echo $navPoint["label"]; ?>
 					<?php if(isset($navPoint["navPoints"])) { renderNavPoints($epub, $navPoint["navPoints"]); } ?>
 				</a>

@@ -98,7 +98,11 @@ class Epub_API {
 	public function serveAction() {
 		$this->_format = strtolower(preg_replace("/^.+\.([a-z]+)$/", "$1", $this->_zipAccess));
 		$this->_setContentType($this->_format);
-		return $this->reader->getFile($this->_zipAccess);
+		$file = $this->reader->getFile($this->_zipAccess);
+		if(preg_match("/src=\"..\//", $file)) {
+			$file = preg_replace("/src=\"..\//", "src=\"/pubsnuff/?/epub/serve/" . urlencode($this->_epubFile) . "/", $file);
+		}
+		return $file;
 	}
 }
 ?>

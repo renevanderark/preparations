@@ -2,8 +2,8 @@
 	<head>
 		<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 		<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
-		<link rel="stylesheet" href="/reset.css" type="text/css" media="screen" />
-		<link rel="stylesheet" href="/style.css" type="text/css" media="screen" />
+		<link rel="stylesheet" href="/pubsnuff/reset.css" type="text/css" media="screen" />
+		<link rel="stylesheet" href="/pubsnuff/style.css" type="text/css" media="screen" />
 
 	</head>
 	<body>
@@ -47,11 +47,13 @@
 				$.ajax("http://<?php echo $_SERVER['SERVER_ADDR'] ?>:8080?urn=" + encodeURIComponent(id + ":xml"), {
 					success: function(data) {
 						$(el).parent("li").find(".epub-status").html(
-							$("<a>").html("bekijk").attr("href", "/show/" + encodeURIComponent(data.filename))
+							$("<a>").html("bekijk").attr("href", "/pubsnuff/?/show/" + encodeURIComponent(data.filename))
 						).append("&nbsp;").append(
-							$("<a>").html("downloaden").attr("href", "/download/" + encodeURIComponent(data.filename))
+							$("<a>").html("downloaden").attr("href", "/pubsnuff/books/" + encodeURIComponent(data.filename))
 						);
-						
+					},
+					error: function() {
+						$(el).parent("li").find(".epub-status").html("Er is een fout opgetreden");
 					}
 				});
 			}

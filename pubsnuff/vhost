@@ -1,0 +1,13 @@
+
+<VirtualHost *:80>
+    # This first-listed virtual host is also the default for *:80
+    ServerName pubsnuff.local
+    DocumentRoot "/home/rar011/hackathon/pubsnuff/public"
+ <Directory "/home/rar011/hackathon/pubsnuff/public">
+        DirectoryIndex index.php
+        AllowOverride All
+        Require all granted
+</Directory>
+
+</VirtualHost>
+

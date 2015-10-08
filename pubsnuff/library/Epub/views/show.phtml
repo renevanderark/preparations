@@ -1,0 +1,108 @@
+<html>
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
+		<link rel="stylesheet" href="/reset.css" type="text/css" media="screen" />
+		<link rel="stylesheet" href="/style.css" type="text/css" media="screen" />
+		<script type="text/javascript">
+			var toc = {};
+
+			toc.toggle = function() {
+				var el = document.getElementById("toc");
+				if(el.className === 'opened') {
+					el.className = '';
+				} else {
+					el.className = 'opened';
+					var ul = document.getElementsByTagName("ul")[0];
+					var h2 = document.getElementsByTagName("h2")[0];
+					ul.style.paddingTop = h2.clientHeight + 20 + "px";
+				}
+			};
+			window.onresize = function(e) {
+				var el = document.getElementById("toc");
+				if(window.innerWidth <= 600) { el.scrollTop = 0; }
+			};
+		</script>
+	</head>
+	<body>
+		<div id="toc">
+			<a id="toc-toggle" onclick="toc.toggle();">
+				<img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAAABmJLR0QA/wD/AP+gvaeTAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAB3RJTUUH3wMEBhICdQmEkAAAABl0RVh0Q29tbWVudABDcmVhdGVkIHdpdGggR0lNUFeBDhcAAAEESURBVEjH7VSxSsRAEH2zHCOptAikVO8DAhbWsYhkC79BsPIH/A9LmwMr8RuWTaH1kSZ+gJYX0mhhiGHNWEU8UljscXCQV+2bYt4w8/YBE/4B/SVZlp0RUeLTUESejTFPA58ND631HoBLIrryHPo+juNlWZafAKCGqnNuDuBkA1s5jaLoeCC/Am3brgC8bEBgWVXV69ZusF0XpWm6z8wHPg27rnvP8/xjJJAkySwIghsA155DL+q6vi2KolmzqVLqUEQulFJHngLnYRg+AHhbcxEzN0T05btzEfnu+74ZfTRjzEprbUVk7qlhrbX1SACAOOfumPnR98gAZAq7Kex2KOx2Hz/vcX49aqewRgAAAABJRU5ErkJggg=="/>
+				<h2><?php echo $toc["title"]; ?></h2>
+			</a>
+			<?php renderNavPoints($epub, $toc["navPoints"]); ?>
+		</div>
+
+		<iframe id="book" name="main" src="http://<?php echo $_SERVER['SERVER_NAME']; ?>/epub/serve/<?php echo $epub . "/" . $coverPage; ?>">
+		</iframe>
+		<a id="prev-page" target="main" class="normal">&lt;</a>
+		<div id="spine"></div>
+		<a id="next-page" target="main">&gt;</a>
+		<script type="text/javascript">
+			var spine = <?php echo json_encode($spine); ?>;
+			var book = document.getElementById("book");
+			var nextPage = document.getElementById("next-page");
+			var prevPage = document.getElementById("prev-page");
+			function checkPosition() {
+				
+				if(book.contentWindow.scrollY + book.contentWindow.innerHeight >= book.contentWindow.document.body.offsetHeight - 10) {
+					nextPage.className = "flash";
+				} else {
+					nextPage.className = "normal";
+				}
+			}
+			function showSpine() {
+				var spineContainer = document.getElementById("spine");
+
+				spineContainer.innerHTML = "";
+				for(var i = 0; i < spine.length; i++) {
+					var node = document.createElement("a");
+					var spineSrc = "http://<?php echo $_SERVER['SERVER_NAME']; ?>/epub/serve/<?php echo $epub . "/" ?>" + spine[i];
+					node.setAttribute("href", spineSrc);
+					node.setAttribute("target", "main");
+					node.style.left = parseInt(i / (spine.length - 1) * 90) + "%";
+					spineContainer.appendChild(node);
+					if(spineSrc === decodeURIComponent(book.contentWindow.location.href)) {
+
+						node.className = "selected";
+						if(i < spine.length - 1) {
+							var nextSrc = "http://<?php echo $_SERVER['SERVER_NAME']; ?>/epub/serve/<?php echo $epub . "/" ?>" + spine[i + 1];
+							nextPage.setAttribute("href", nextSrc);
+							nextPage.style.display = "block";
+						} else {
+							nextPage.style.display = "none";
+						}
+						if(i > 0) {
+							var prevSrc = "http://<?php echo $_SERVER['SERVER_NAME']; ?>/epub/serve/<?php echo $epub . "/" ?>" + spine[i - 1];
+							prevPage.setAttribute("href", prevSrc);
+							prevPage.style.display = "block";
+						} else {
+							prevPage.style.display = "none";
+						}
+					}
+				}
+
+			}
+			book.onload = function() {
+				showSpine();
+				book.contentWindow.onscroll = checkPosition;
+				book.contentWindow.document.body.setAttribute("style", "padding-left: 24px; padding-right: 24px; padding-top: 48px; padding-bottom: 48px");
+				checkPosition();
+			}
+		</script>
+	</body>
+</html>
+
+<?php function renderNavPoints($epub, $navPoints) { ?>
+	<ul>
+		<?php foreach($navPoints as $navPoint): ?>
+			<li>
+				<a onclick="if(window.innerWidth <= 600) { toc.toggle(); }" target="main" href="http://<?php echo $_SERVER['SERVER_NAME']; ?>/epub/serve/<?php echo $epub . "/" . $navPoint["src"]; ?>">
+					<?php echo $navPoint["label"]; ?>
+					<?php if(isset($navPoint["navPoints"])) { renderNavPoints($epub, $navPoint["navPoints"]); } ?>
+				</a>
+			</li>
+		<?php endforeach; ?>
+	</ul>
+<?php } ?>
+

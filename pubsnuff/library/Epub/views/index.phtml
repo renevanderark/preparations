@@ -1,0 +1,60 @@
+<html>
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
+		<link rel="stylesheet" href="/reset.css" type="text/css" media="screen" />
+		<link rel="stylesheet" href="/style.css" type="text/css" media="screen" />
+
+	</head>
+	<body>
+		<ul style="overflow-y: auto; height: 90%">
+			<?php 
+				$q = isset($_POST['q']) ? $_POST['q'] : "psyche";
+
+				$xml = file_get_contents("http://jsru.kb.nl/sru/sru?query=$q&version=1.2&operation=searchRetrieve&recordSchema=dc&x-collection=BOEKEN_boek");
+				$parsed = new SimpleXMLElement($xml);
+				$namespaces = $parsed->getDocNamespaces();
+				foreach ($namespaces as $key => $value) {
+					$parsed->registerXPathNamespace($key, $value);
+				}
+				foreach($parsed->xpath("//srw:recordData") as $node) {
+					echo "<li>";
+					$txt = [];
+					foreach ($node->xpath("dc:*") as $val) {
+						if($val->getName() === "title") {
+							$txt["title"] = (string) $val;
+						}
+						if($val->getName() === "date") {
+							$txt["date"] = (string) $val;	
+						}
+						if($val->getName() === "identifier") {
+							$txt["identfier"] = str_replace("http://resolver.kb.nl/resolve?urn=", "", (string) $val);
+						}
+					}
+					echo "<a style='color: blue; text-decoration: underline; cursor: pointer' onclick='generateBook(\"" . $txt["identfier"] . "\", this)'>";
+					echo $txt["title"] . " <i style='font-style: italic'>" . $txt["date"] . "</i> ";
+					echo "</a>";
+					echo "&nbsp;<span class='epub-status'></span>";
+					echo "</li>";
+				}
+			?>
+		</ul>
+
+		<script src="https://code.jquery.com/jquery-1.11.3.min.js"></script>
+		<script>
+			function generateBook(id, el) {
+				$(el).parent("li").find(".epub-status").html("Bezig met ebook genereren");
+				$.ajax("http://<?php echo $_SERVER['SERVER_ADDR'] ?>:8080?urn=" + encodeURIComponent(id + ":xml"), {
+					success: function(data) {
+						$(el).parent("li").find(".epub-status").html(
+							$("<a>").html("bekijk").attr("href", "/show/" + encodeURIComponent(data.filename))
+						).append("&nbsp;").append(
+							$("<a>").html("downloaden").attr("href", "/download/" + encodeURIComponent(data.filename))
+						);
+						
+					}
+				});
+			}
+		</script>	
+	</body>
+</html>

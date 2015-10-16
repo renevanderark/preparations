@@ -30,14 +30,16 @@ public class DidlConverter {
 
     private static final String SERVICE_URL = "http://imageviewer.kb.nl/ImagingService/imagingService?id=";
     private final String titlePageImage;
+    private final String urlUrn;
     private List<String> altos = new ArrayList<String>();
     private String urn;
     private String title;
     private String filename;
 
     public DidlConverter(String urn) throws XPathExpressionException, IOException {
-        this.urn = urn;
-        URL url = new URL("http://resolver.kb.nl/resolve?urn=" + urn);
+        this.urn = urn.replaceAll(":", "_");
+        this.urlUrn = urn;
+        URL url = new URL("http://resolver.kb.nl/resolve?urn=" + urlUrn);
         HttpURLConnection connection = (HttpURLConnection) url.openConnection();
         connection.setRequestProperty("Accept-Charset", "UTF-8");
         InputStream inputStream = connection.getInputStream();

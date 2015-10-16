@@ -228,9 +228,10 @@ public class DidlConverter {
 
     public void generateEpub() throws IOException, TransformerException {
 
+
+        convertAltos();
         printContainer();
         printOpf();
-        convertAltos();
         printTitlePage();
         downloadTitlePageImage();
         printToc();

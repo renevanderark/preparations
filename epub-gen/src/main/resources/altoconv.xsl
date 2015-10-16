@@ -27,14 +27,14 @@
     <xsl:template match="//alto:Styles/alto:TextStyle">
         .<xsl:value-of select="@ID" /> {
         font-family: <xsl:value-of select="@FONTFAMILY" />;
-        font-size: <xsl:value-of select="@FONTSIZE * 0.25" />em;
+        font-size: <xsl:value-of select="@FONTSIZE * 0.1" />em;
         }
     </xsl:template>
 
     <xsl:template match="//alto2:Styles/alto2:TextStyle">
         .<xsl:value-of select="@ID" /> {
         font-family: <xsl:value-of select="@FONTFAMILY" />;
-        font-size: <xsl:value-of select="@FONTSIZE * 0.25" />em;
+        font-size: <xsl:value-of select="@FONTSIZE * 0.1" />em;
         }
     </xsl:template>
 

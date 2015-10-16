@@ -35,6 +35,7 @@ public class DidlConverter {
     private String urn;
     private String title;
     private String filename;
+    private List<File> altoFiles = new ArrayList<File>();
 
     public DidlConverter(String urn) throws XPathExpressionException, IOException {
         this.urn = urn.replaceAll(":", "_");
@@ -82,15 +83,44 @@ public class DidlConverter {
         }
     }
 
+    private void downloadAltos() throws IOException {
+        new File("output/" + urn + "_altos").mkdirs();
+
+        for(int i = 0; i < altos.size(); i++) {
+            URL url = new URL(altos.get(i));
+            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+            InputStream inputStream = connection.getInputStream();
+            BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
+            String ln;
+            File f = new File("output/" + urn + "_altos/" + i + ".xml");
+            PrintWriter pw = new PrintWriter(f);
+            boolean found = false;
+            while((ln = reader.readLine()) != null) {
+                if(ln.matches(".*<String.*")) {
+                    found = true;
+                }
+                pw.println(ln);
+            }
+            pw.flush();
+            pw.close();
+            if(found) {
+                System.out.println("FOUND: " + i);
+                this.altoFiles.add(f);
+            }
+
+            reader.close();
+
+        }
+    }
 
     private void convertAltos() throws IOException, TransformerException {
         new File("output/" + urn + "/OEBPS/xhtml").mkdirs();
         TransformerFactory tFactory = TransformerFactory.newInstance();
         Transformer transformer = tFactory.newTransformer(new StreamSource(this.getClass().getResourceAsStream("/altoconv.xsl")));
-        for(int i = 0; i < altos.size(); i++) {
-            URL url = new URL(altos.get(i));
-            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-            InputStream inputStream = connection.getInputStream();
+        for(int i = 0; i < altoFiles.size(); i++) {
+            /*URL url = new URL(altos.get(i));
+            HttpURLConnection connection = (HttpURLConnection) url.openConnection();*/
+            InputStream inputStream = new FileInputStream(altoFiles.get(i));
             StreamSource inputSource = new StreamSource(inputStream);
             transformer.transform(inputSource, new StreamResult(new File("output/" + urn + "/OEBPS/xhtml/" + (i+1) + ".xhtml")));
         }
@@ -167,7 +197,7 @@ public class DidlConverter {
 
     private void printNavMap(PrintWriter pw) {
         pw.println("<navMap>");
-        for(int i = 0; i <= altos.size(); i++) {
+        for(int i = 0; i <= altoFiles.size(); i++) {
             pw.println("<navPoint id=\"navPoint-" + (i+1) + "\" playOrder=\"" + (i+1) + "\">");
             pw.println("<navLabel>\n" +
                     " <text>Pagina " + (i+1) +  "</text>\n" +
@@ -200,7 +230,7 @@ public class DidlConverter {
 
     private void printSpine(PrintWriter pw) {
         pw.println("<spine toc=\"ncx\">");
-        for(int i = 0; i <= altos.size(); i++) {
+        for(int i = 0; i <= altoFiles.size(); i++) {
             pw.println("<itemref idref=\"id" + i +"\" />");
         }
 
@@ -211,7 +241,7 @@ public class DidlConverter {
         pw.println("<manifest>");
         pw.println("<item id=\"ncx\" href=\"toc.ncx\" media-type=\"application/x-dtbncx+xml\"/>");
         pw.println("<item id=\"cover-image\" properties=\"cover-image\" href=\"images/titlepage.jpg\" media-type=\"image/jpeg\"/>");
-        for(int i = 0; i <= altos.size(); i++) {
+        for(int i = 0; i <= altoFiles.size(); i++) {
             pw.println("<item id=\"id" + i + "\" href=\"xhtml/" + i + ".xhtml\" media-type=\"application/xhtml+xml\"/>");
         }
 
@@ -228,7 +258,7 @@ public class DidlConverter {
 
     public void generateEpub() throws IOException, TransformerException {
 
-
+        downloadAltos();
         convertAltos();
         printContainer();
         printOpf();
@@ -252,6 +282,7 @@ public class DidlConverter {
         fileList.add(0, found);
         ZipDirectory.writeZipFile(directoryToZip, fileList, filename);
     }
+
 
 
 
